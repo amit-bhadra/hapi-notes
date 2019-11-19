@@ -1,0 +1,29 @@
+{
+  "name": "hapi-notes",
+  "version": "1.0.0",
+  "description": "",
+  "main": "app.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "nodemon app.js"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "@hapi/boom": "^8.0.1",
+    "@hapi/hapi": "^18.4.0",
+    "@hapi/inert": "^5.2.2",
+    "@hapi/joi": "^16.1.7",
+    "@hapi/vision": "^5.5.4",
+    "bcrypt": "^3.0.6",
+    "cookie": "^0.4.0",
+    "ejs": "^2.7.2",
+    "hapi-auth-jwt2": "^8.8.0",
+    "hapi-error": "^2.1.0",
+    "hapi-swagger": "^11.0.1",
+    "jsonwebtoken": "^8.5.1",
+    "mongoose": "^5.7.11",
+    "node-fetch": "^2.6.0"
+  }
+}

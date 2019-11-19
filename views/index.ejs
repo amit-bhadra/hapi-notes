@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html lang="en">
+
+	<title>Sign up </title>
+    <meta charset="utf-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+	<head>
+		<link href="https://fonts.googleapis.com/css?family=Lobster" rel="stylesheet">
+		<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
+        <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.0/css/bootstrap.min.css">
+		<script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.0/js/bootstrap.min.js"></script> 
+	</head>
+    <style>
+        body {
+            background-color:#eee;
+        }
+        .container-fluid {
+            padding:50px;
+        }
+        .container{
+            background-color:white;
+			padding:50px;   
+			width: 500px;
+        }
+    </style>
+	<body>
+	<div class="container-fluid">
+		<div class="container">
+			<ul class="nav nav-pills" >
+				<li class="active" style="width:50%" onclick="showLogin()" ><a class="btn btn-lg btn-default" data-toggle="tab" href="#home">Login</a></li>
+				<li class=" " style="width:48%" onclick="showRegister()"><a class=" btn btn-lg btn-default" data-toggle="tab" href="#menu1">Register</a></li>
+			</ul>
+ 			<hr>
+			<div class="row">
+				<div class="col-md-12" id='signForm' style="display: none">
+ 					<form role="form" method="post" id="register_form" action="/register">
+						<fieldset>		
+							<p class="text-uppercase"> Register: </p>						
+ 							<div class="form-group">
+								<input type="text" name="name" id="register_name" class="form-control input-lg" placeholder="Name" required>
+							</div>
+
+							<div class="form-group">
+								<input type="email" name="email" id="register_email" class="form-control input-lg" placeholder="Email Address" required>
+							</div>
+							<div class="form-group">
+								<input type="password" name="password" id="register_password" class="form-control input-lg" placeholder="Password" title="Password is required" required >
+							</div>
+ 								<input type="submit" class="btn btn-md btn-primary" id="register_btn" value="Register">
+ 							</div>
+						</fieldset>
+					</form>
+				</div>
+				
+				<div class="col-md-12" id='Loginform'>
+ 				 		<form role="form" method="post" action="/login" id="login_form">
+						<fieldset>							
+							<p class="text-uppercase"> Login using your account: </p>	
+ 								
+							<div class="form-group">
+								<input type="email" name="email" id="login_email" class="form-control input-lg" placeholder="Email id" required>
+							</div>
+							<div class="form-group">
+								<input type="password" name="password" id="login_password" class="form-control input-lg" placeholder="Password"   required >
+							</div>
+							<div>
+								<input type="submit" class="btn btn-md  btn-primary" id="signin_btn" value="Sign In">
+							</div>
+ 						</fieldset>
+				</form>	
+				</div>
+			</div>
+		</div>
+	</div>
+	</body>
+	<script>
+		function showRegister(){
+			document.getElementById('signForm').style.display = 'block';
+			document.getElementById('Loginform').style.display = 'none';
+		}
+		function showLogin(){
+			document.getElementById('signForm').style.display = 'none';
+			document.getElementById('Loginform').style.display = 'block';
+		}
+
+		$("#register_form").on('submit',function(event) {
+			event.preventDefault(); // to prevent default page reloading
+			var dataString = $(this).serialize(); // to get the form data
+			
+			$.ajax({
+				type: "POST",
+				url: "/register",
+				data: dataString,
+				success: function(data){
+					$('#register_form')[0].reset(); // to reset form data
+				}
+			}).done(function(data){
+				alert(data.message);
+			});
+		});
+
+		$("#login_form").on('submit',function(event) {
+			event.preventDefault(); // to prevent default page reloading
+			var dataString = $(this).serialize(); // to get the form data
+			
+			$.ajax({
+				type: "POST",
+				url: "/login",
+				data: dataString,
+				success: function(data){
+					$('#login_form')[0].reset(); // to reset form data
+				}
+			}).done(function(data){
+				// alert(data.message);
+				window.location.replace('/user');
+			});
+		});
+	</script>
+</html>

@@ -1,0 +1,201 @@
+
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <title>Notepad</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
+  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.0/css/bootstrap.min.css">
+  <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.0/js/bootstrap.min.js"></script> 
+  <script src="https://unpkg.com/sweetalert/dist/sweetalert.min.js"></script>
+  <style>
+    input[type='submit'], button, [aria-label]{
+      cursor: pointer;
+    }
+    #spoiler{
+      display: none;
+    }
+    button{
+      padding:6px;
+    }
+    body{
+      background-color: rgba(214, 224, 226, 0.2);
+    }
+    .padding0{
+      padding:0 !important;
+    }
+    .paddingTB8{
+      padding: 8px 0 !important;
+    }
+    .marginR5{
+      margin-right: 5px;
+    }
+  </style>
+</head>
+<body>
+  <div class="collapse navbar-collapse" id="navbarTogglerDemo02" style="height: 15vh !important;padding: 10px;background: #949a9a;">
+        <button class="btn btn-md  btn-primary open-notepad pull-right" style="background: black;border-color: black;" id="log_out"> Logout</button>
+        <a href="/user" class="pull-right" style="padding:10px;">User Dashboard</a>
+  </div>
+  <div class="col-xs-12" style="height: 85vh">
+    <div class="col-xs-4" style="height: 100%;">
+      <div>
+        <div>
+          <span style="font-size: 20px">Notes</span>
+        </div>
+        <div id="notesContent">
+        </div>
+      </div>
+    </div>
+    <div class="col-xs-8" style="border-left: 2px solid;">
+      <form action="javascript:void(0);" method="POST" onsubmit="app.Add()">
+        <div>
+          <div class="col-xs-12" style="padding:20px">
+              <div>Title</div>
+              <input type="text" id="add-name" placeholder="New title" style="width: 80%">
+          </div>
+          <div class="col-xs-12" style="padding:20px;">
+              <div>Content</div>
+              <textarea name="contentNote" rows="20" cols="100" id="contentNote">
+              </textarea>
+          </div>
+          <button type="button" value="cancel" class="btn btn-primary pull-right " id="cancelEdit" onclick="app.cancelEdit()">Cancel</button>
+          <button type="submit" value="Add" class="btn btn-primary pull-right marginR5">Save</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+
+
+<script>
+var app = new function() {
+  this.el = document.getElementById('notesContent');
+  self = this;
+  this.Titles = [];
+  
+  this.FetchAll = function() {
+    var data = '';
+    $.ajax({
+      url: "/get/notes",
+      type: 'GET',
+      success: function(result){
+        if(result.success){
+          self.Titles = result.data;
+          if (self.Titles.length > 0) {
+            for (i = 0; i < self.Titles.length; i++) {
+              data += '<div class="col-xs-12 paddingTB8">';
+              data += '<div class="col-xs-7 padding0">' + self.Titles[i].title + '</div>';
+              data += '<div class="col-xs-5" style="display:flex;">'+'<button type="button" class="btn btn-primary marginR5" onclick="app.Edit(' + i + ')">Edit/View</button>';
+              data += '<button type="button" class="btn btn-danger" onclick="app.Delete(' + i + ')">Delete</button></div>';
+              data += '</div>';
+            }
+          }
+          document.getElementById('notesContent').innerHTML = data;
+        }else{
+          swal('',result.message, "error");
+        }
+      }
+    });
+  };
+  this.Add = function () {
+    elTitle = document.getElementById('add-name');
+    elContent = document.getElementById('contentNote');
+    var title = elTitle.value;
+    var contentNote = elContent.value;
+    var temp = {
+        title:title,
+        content:contentNote
+      }
+    if(this.editClicked && currentItem){
+      this.editClicked = false;
+      var param = {
+        id:self.Titles[currentItem]._id,
+        title:temp.title,
+        note_text:temp.content
+      }
+      $.ajax({
+        url: "/update/notes", 
+        data:param,
+        type: 'PUT',
+        success: function(result){
+          if(result.success){
+            currentItem = "";
+            swal('',result.message, "success");
+            self.FetchAll();
+          }else{
+            swal('',result.message, "error");
+          }
+        }
+      });
+    }else if (title) {
+      var param = {
+        title:temp.title,
+        note_text:temp.content
+      }
+      $.ajax({
+        url: "/save/notes", 
+        data:param,
+        type: 'POST',
+        success: function(result){
+          if(result.success){
+            swal('',result.message, "success");
+            self.FetchAll();
+          }else{
+            swal('',result.message, "error");
+          }
+        }
+      });
+    }
+    elContent.value = '';
+    elTitle.value = '';
+  };
+  var currentItem = "";
+  this.Edit = function (item) {
+    elTitle = document.getElementById('add-name');
+    elContent = document.getElementById('contentNote');
+    elTitle.value = self.Titles[item].title;
+    elContent.value = self.Titles[item].note_text;
+    self = this;
+    this.editClicked = true;
+    currentItem = item;
+    document.getElementById('cancelEdit').style.display = 'block';
+  };
+  this.cancelEdit = function(){
+    document.getElementById('cancelEdit').style.display = 'none';
+    elTitle = document.getElementById('add-name');
+    elContent = document.getElementById('contentNote');
+    elTitle.value = '';
+    elContent.value = '';
+    self.FetchAll();
+  }
+  this.Delete = function (item) {
+    currentItem = "";
+    var param = {
+      id:self.Titles[item]._id
+    }
+    $.ajax({
+      url: "/delete/notes", 
+      data:param,
+      type: 'DELETE',
+      success: function(result){
+        if(result.success){
+          swal('',result.message, "success");
+          self.FetchAll();
+        }else{
+          swal('',result.message, "error");
+        }
+      }
+    });
+  };
+}
+app.FetchAll();
+
+$("#log_out").on('click', function() {
+        document.cookie = "token=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;";
+        window.location.href = '/';
+    });
+</script>
+</body>
+</html>
