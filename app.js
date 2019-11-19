@@ -254,25 +254,25 @@ const init = async () => {
     });
 
     // Weather route
-    // server.route({
-    //     method: "GET",
-    //     path: "/weather",
-    //     handler: async (request, h) => {
-    //         try {
-    //             let ip = request.info.remoteAddress;
-    //             const response = await fetch(`https://weatherstack.com/ws_api.php?ip=49.37.198.86`);
-    //             const json = await response.json();
-    //             // console.log(json);
-                
-    //             return h.response(json);
-    //         } catch (errror) {
-    //             throw Boom.unauthorized('Logout Error', error);
-    //         }
-    //     },
-    //     options: {
-    //         auth: false
-    //     }
-    // });
+    server.route({
+        method: "GET",
+        path: "/weather",
+        options: {
+            auth: false,
+            handler: async (request, h) => {
+                try {
+                    let ip = request.headers['x-forwarded-for'];
+                    const response = await fetch(`https://weatherstack.com/ws_api.php?ip=${ip}`);
+                    const json = await response.json();
+                    // console.log(json);
+                    
+                    return h.response(json);
+                } catch (errror) {
+                    throw Boom.unauthorized('Logout Error', error);
+                }
+            }
+        }
+    });
 
     // Render Dashboard
     server.route({
